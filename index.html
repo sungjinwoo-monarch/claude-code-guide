@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code Documentation | Setup Guide</title>
+    
+    <!-- Premium Editorial Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Warm Literary Palette */
+            --bg-page: #FAF8F5;
+            --bg-secondary: #F3EFEA;
+            --text-main: #191919;
+            --accent-clay: #D96A46;
+            --accent-clay-hover: #E05C36;
+            --border-line: #EBE7E0;
+            --terminal-bg: #1A1A1A;
+            --terminal-text: #E0E0E0;
+            
+            /* Typography */
+            --font-serif: 'Lora', serif;
+            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- Loading Screen --- */
+        #loading-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-page);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 10000; transition: opacity 0.8s ease, visibility 0.8s;
+        }
+        .loader-name {
+            font-family: var(--font-serif);
+            font-size: 1.8rem;
+            letter-spacing: 5px;
+            color: var(--accent-clay);
+            font-weight: 500;
+            animation: pulseFade 2s infinite ease-in-out;
+        }
+        @keyframes pulseFade { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+        .loaded #loading-screen { opacity: 0; visibility: hidden; }
+
+        /* --- Content Layout --- */
+        .page-container { max-width: 850px; margin: 0 auto; padding: 80px 24px; }
+
+        header { margin-bottom: 80px; border-bottom: 1px solid var(--border-line); padding-bottom: 40px; }
+        h1 { font-family: var(--font-serif); font-size: 3.5rem; line-height: 1.1; margin-bottom: 20px; font-weight: 400; }
+        .hero-desc { font-family: var(--font-serif); font-size: 1.35rem; color: #4a4a4a; font-style: italic; max-width: 700px; }
+
+        section { margin-bottom: 80px; }
+        h2 { font-family: var(--font-serif); font-size: 2.2rem; margin-bottom: 25px; color: var(--text-main); font-weight: 600; }
+        h3 { font-family: var(--font-serif); font-size: 1.4rem; margin: 30px 0 15px 0; color: var(--accent-clay); }
+        p { margin-bottom: 18px; font-size: 1.15rem; color: #333; }
+
+        /* --- Premium Terminal & Copy System --- */
+        .code-container {
+            background: var(--terminal-bg);
+            border-radius: 12px;
+            margin: 25px 0;
+            overflow: hidden;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+            position: relative;
+        }
+        .code-header {
+            background: #252525;
+            padding: 12px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #333;
+        }
+        .code-label { color: #888; font-size: 0.75rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1px; }
+        .copy-btn {
+            background: var(--accent-clay);
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .copy-btn:hover { background: var(--accent-clay-hover); transform: translateY(-1px); }
+        .copy-btn.success { background: #27ae60; }
+
+        .code-body { padding: 20px; overflow-x: auto; position: relative; }
+        code { font-family: var(--font-mono); color: var(--terminal-text); font-size: 0.95rem; line-height: 1.6; white-space: pre-wrap; display: block; }
+
+        /* --- Model Tags & UI Elements --- */
+        .tag-group { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0; }
+        .tag { background: var(--bg-secondary); border: 1px solid var(--border-line); padding: 5px 12px; border-radius: 6px; font-family: var(--font-mono); font-size: 0.9rem; }
+        
+        .bullet-list { margin: 20px 0 30px 25px; }
+        .bullet-list li { margin-bottom: 12px; list-style-type: circle; color: #444; font-size: 1.1rem; }
+
+        .callout {
+            background: var(--bg-secondary);
+            border-left: 5px solid var(--accent-clay);
+            padding: 30px;
+            margin: 40px 0;
+            font-family: var(--font-serif);
+            font-size: 1.2rem;
+            font-style: italic;
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* --- Footer --- */
+        footer {
+            margin-top: 100px; padding: 60px 0; border-top: 1px solid var(--border-line);
+            text-align: center; font-family: var(--font-serif); background: var(--bg-secondary);
+        }
+        .watermark { font-weight: 600; color: var(--accent-clay); letter-spacing: 1px; text-transform: uppercase; font-size: 0.9rem; }
+
+        @media (max-width: 650px) {
+            h1 { font-size: 2.4rem; }
+            h2 { font-size: 1.8rem; }
+            .page-container { padding: 40px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loader-name">ISTAB MAIBAM</div>
+    </div>
+
+    <div class="page-container">
+        <header>
+            <h1>Claude Code</h1>
+            <p class="hero-desc">Anthropic’s agentic coding tool that can read, modify, and execute code in your working directory.</p>
+        </header>
+
+        <!-- INSTALLATION -->
+        <section>
+            <h2>Install</h2>
+            <p>Deploy the CLI tool to your local environment with this command:</p>
+            <div class="code-container">
+                <div class="code-header">
+                    <span class="code-label">Terminal / Shell</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <div class="code-body">
+                    <code>curl -fsSL https://claude.ai/install.sh | sh</code>
+                </div>
+            </div>
+        </section>
+
+        <!-- OLLAMA USAGE -->
+        <section>
+            <h2>Usage with Ollama</h2>
+            <p>Open models are fully compatible through Ollama’s Anthropic-compliant API bridge.</p>
+            
+            <div class="tag-group">
+                <span class="tag">qwen3.5</span>
+                <span class="tag">glm-5:cloud</span>
+                <span class="tag">kimi-k2.5:cloud</span>
+                <span class="tag">minimax-m2.7:cloud</span>
+                <span class="tag">glm-4.7-flash</span>
+            </div>
+
+            <h3>Quick Setup</h3>
+            <div class="code-container">
+                <div class="code-header">
+                    <span class="code-label">Ollama CLI</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <div class="code-body"><code>ollama launch claude</code></div>
+            </div>
+
+            <h3>Launch with specific model</h3>
+            <div class="code-container">
+                <div class="code-header">
+                    <span class="code-label">Model Launch</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <div class="code-body"><code>ollama launch claude --model kimi-k2.5:cloud</code></div>
+            </div>
+        </section>
+
+        <!-- HEADLESS MODE -->
+        <section>
+            <h2>Non-interactive (headless) mode</h2>
+            <p>Run Claude Code in background processes, Docker, or CI/CD pipelines. The <code>--yes</code> flag skips all interactive prompts.</p>
+            <div class="code-container">
+                <div class="code-header">
+                    <span class="code-label">Headless Command</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <div class="code-body"><code>ollama launch claude --model kimi-k2.5:cloud --yes</code></div>
+            </div>
+        </section>
+
+        <!-- SCHEDULED TASKS -->
+        <section>
+            <h2>Scheduled Tasks with <code>/loop</code></h2>
+            <p>Automate recurring research, bug reporting, or code reviews using intervals.</p>
+            
+            <div class="code-container">
+                <div class="code-header">
+                    <span class="code-label">Syntax</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <div class="code-body"><code>/loop &lt;interval&gt; &lt;prompt or /command&gt;</code></div>
+            </div>
+
+            <h3>Automation Examples</h3>
+            <ul class="bullet-list">
+                <li><strong>PR Reviews:</strong> <code>/loop 30m Check my open PRs and summarize changes</code></li>
+                <li><strong>Research:</strong> <code>/loop 1h Research the latest AI news and report back</code></li>
+                <li><strong>Bug Triage:</strong> <code>/loop 15m Check for new GitHub issues</code></li>
+                <li><strong>Reminders:</strong> <code>/loop 1h Remind me to review the dependencies</code></li>
+            </ul>
+        </section>
+
+        <!-- PLUGINS & TELEGRAM -->
+        <section>
+            <h2>Telegram & Plugins</h2>
+            <p>Connect a bot via <code>@BotFather</code> to chat with Claude Code remotely. Launch with the channels flag:</p>
+            <div class="code-container">
+                <div class="code-header">
+                    <span class="code-label">Telegram Command</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <div class="code-body"><code>ollama launch claude -- --channels telegram</code></div>
+            </div>
+            
+            <div class="callout">
+                <strong>Pro Tip:</strong> For autonomous operation in isolated environments, use <code>--dangerously-skip-permissions</code> to bypass manual verification.
+            </div>
+        </section>
+
+        <!-- MANUAL SETUP -->
+        <section>
+            <h2>Manual Configuration</h2>
+            <p>Set these environment variables to pair Claude Code manually with the Ollama local host:</p>
+            <div class="code-container">
+                <div class="code-header">
+                    <span class="code-label">Environment Export</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <div class="code-body"><code>export ANTHROPIC_AUTH_TOKEN=ollama
+export ANTHROPIC_API_KEY=""
+export ANTHROPIC_BASE_URL=http://localhost:11434</code></div>
+            </div>
+
+            <p>Run directly via Claude once configured:</p>
+            <div class="code-container">
+                <div class="code-header">
+                    <span class="code-label">Direct Exec</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <div class="code-body"><code>claude --model qwen3.5</code></div>
+            </div>
+        </section>
+
+        <!-- REQUIREMENTS -->
+        <section>
+            <h2>System Requirements</h2>
+            <div class="callout">
+                <strong>Important:</strong> Claude Code requires a massive context window. It is recommended to configure Ollama for at least <strong>64k tokens</strong> to ensure agentic stability.
+            </div>
+        </section>
+
+    </div>
+
+    <footer>
+        <p>A community documentation project by <span class="watermark">Istab Maibam</span></p>
+        <p style="opacity: 0.5; margin-top: 15px; font-size: 0.85rem;">Powered by Anthropic & Ollama • 2025</p>
+    </footer>
+
+    <script>
+        // 1. Loader Logic
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.body.classList.add('loaded');
+            }, 1500); // 1.5s delay to showcase the brand
+        });
+
+        // 2. FIXED ROBUST COPY ENGINE
+        function copyCode(btn) {
+            // Traverse DOM to find the <code> tag within the same container
+            const container = btn.closest('.code-container');
+            const codeEl = container.querySelector('code');
+            const textToCopy = codeEl.innerText;
+
+            // Primary Method: Clipboard API (Requires HTTPS or localhost)
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    handleSuccess(btn);
+                }).catch(err => {
+                    console.error('Clipboard API failed, using fallback:', err);
+                    executeFallbackCopy(textToCopy, btn);
+                });
+            } else {
+                // Secondary Method: Fallback Textarea (Works on local files/older browsers)
+                executeFallbackCopy(textToCopy, btn);
+            }
+        }
+
+        function executeFallbackCopy(text, btn) {
+            const tempTextArea = document.createElement("textarea");
+            tempTextArea.value = text;
+            
+            // Set style to hide it off-screen
+            tempTextArea.style.position = "absolute";
+            tempTextArea.style.left = "-9999px";
+            tempTextArea.style.top = "0";
+            
+            document.body.appendChild(tempTextArea);
+            tempTextArea.focus();
+            tempTextArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) handleSuccess(btn);
+            } catch (err) {
+                console.error('Fallback copy was unsuccessful', err);
+            }
+            
+            document.body.removeChild(tempTextArea);
+        }
+
+        function handleSuccess(btn) {
+            const originalText = btn.innerText;
+            btn.innerText = "COPIED!";
+            btn.classList.add('success');
+            
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.classList.remove('success');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
